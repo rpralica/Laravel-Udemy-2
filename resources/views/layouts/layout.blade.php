@@ -12,7 +12,7 @@
 
 </head>
 <title>@yield('title', 'Laravel Project')</title>
-
+@yield('stiles')
 <body>
 
     <div class="container mt-3">
@@ -20,7 +20,12 @@
         <div class="mt-4 p-3 bg-primary text-white rounded">
             <h1 style="text-align: center;">@yield('page-name')</h1>
 
+
         </div>
+        <br>
+        @if (session()->has('success'))
+<div class="text-center text-success h3">{{session('success')}}</div>
+@endif
     </div>
     <br><br>
     @yield('content')

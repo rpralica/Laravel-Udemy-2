@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Models\Task;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,17 +20,50 @@ use Illuminate\Http\Response;
 
 Route::get('/tasks', function () {
 
-    return view('index', ['tasks' =>\App\Models\Task::all()]);
+    return view('index', ['tasks' => Task::all()]);
 })->name('tasks.index');
 
-Route::get('/task/{id}', function ($id) {
+Route::view('tasks/create', 'create')->name('tasks.create');
+//Edit
+Route::get('/task/{id}/edit', function ($id) {
+    return view('edit', ['task' => Task::findOrFail($id)]); //Fetch one record.findOrFail method return 404 if not exist.
+})->name('tasks.edit');
 
-    return view('task', ['task' =>  \App\Models\Task::findOrFail($id)]); //Fetch one record.findOrFail method return 404 if not exist.
+Route::get('/task/{id}', function ($id) {
+    return view('task', ['task' => Task::findOrFail($id)]); //Fetch one record.findOrFail method return 404 if not exist.
 })->name('tasks.task');
 Route::get('/', function () {
     return redirect()->route("tasks.index");
 });
 
+Route::post('/tasks', function (Request $request) {
+    $data = $request->validate([
+        'title' => 'required | max:255',
+        'description' => 'required',
+        'long_description' => 'required',
 
+    ]);
+    $task = new Task;
+    $task->title = $data['title'];
+    $task->description = $data['description'];
+    $task->long_description = $data['long_description'];
+    $task->save();
+    return redirect()->route('tasks.task', ['id' => $task->id])->with('success', 'Zadatak je uspješno kreiran');
+})->name('tasks.store');
 
-//  07:53  lekcija 24
+Route::put('/tasks/{id}', function ($id, Request $request) {
+    $data = $request->validate([
+        'title' => 'required | max:255',
+        'description' => 'required',
+        'long_description' => 'required',
+
+    ]);
+    $task = Task::findOrFail($id);
+    $task->title = $data['title'];
+    $task->description = $data['description'];
+    $task->long_description = $data['long_description'];
+    $task->save();
+    return redirect()->route('tasks.task', ['id' => $task->id])->with('success', 'Zadatak je uspješno Izmijenjen');
+})->name('tasks.update');
+
+    //# 33 lekcija Edit i dalje
